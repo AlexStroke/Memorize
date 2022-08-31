@@ -8,129 +8,93 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var emojis = ["🚁", "🚀", "🚲", "🏎", "🚗", "🚕", "🛥", "🛴", "🚃", "🚂", "🛸", "⛵️" ]
-    @State var emojiCount = 12
+    @ObservedObject var viewModel: EmojiMemoryGame
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("Memorize!")
-                    .font(.largeTitle)
-            }
-            ScrollView {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
-                    ForEach(emojis[0..<emojiCount], id: \.self, content: { emoji in
-                        CardView(content: emoji)} ).aspectRatio(2/3, contentMode: .fit)
+        ScrollView {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
+                ForEach(viewModel.cards) { card in
+                    CardView(card: card)
+                        .aspectRatio(2/3, contentMode: .fit)
+                        .onTapGesture {
+                            viewModel.choose(card)
+                        }
                 }
             }
-            .foregroundColor(Color.red)
-            HStack {
-                vehicles
-                Spacer()
-                gaming
-                Spacer()
-                buildings
-            }
-            .font(.largeTitle)
-            .padding(.horizontal)
-            
         }
+        .foregroundColor(Color.red)
         .padding(.horizontal)
-    }
-    
-    var remove: some View {
-        Button {
-            if emojiCount > 1 {
-                emojiCount -= 1
-            }
-        } label: {
-            Image(systemName: "minus.circle")
-        }
-    }
-    var add: some View {
-        Button {
-            if emojiCount < emojis.count {
-            emojiCount += 1
-            }
-        } label: {
-            Image(systemName: "plus.circle")
-            
-        }
-    }
-    
-    var shuffle: some View {
-        Button {
-            emojis = emojis.shuffled()
-        } label: {
-            Text("Shuffle")
-        }
-    }
-    
-    var vehicles: some View {
-        Button {
-            emojis = ["🚁", "🚀", "🚲", "🏎", "🚗", "🚕", "🛥", "🛴", "🚃", "🚂", "🛸", "⛵️" ].shuffled()
-        } label: {
-            VStack {
-                Image(systemName: "car")
-                Text("Vehicles").font(.title2)
-            }
-        }
-    }
-    
-    var gaming: some View {
-        Button {
-            emojis = ["🎮", "🎰", "👾", "🕹", "🎳", "🎲", "🎯", "🃏", "♣️", "♥️", "♦️", "♠️" ].shuffled()
-        } label: {
-            VStack {
-                Image(systemName: "gamecontroller")
-                Text("Gaming").font(.title2)
-            }
-        }
-    }
-    
-    var buildings: some View {
-        Button {
-            emojis = ["🏛", "🏠", "🏩", "🏦", "🛖", "⛪️", "🏪", "🏥", "🏰", "🏢", "🕌", "🏯" ].shuffled()
-        } label: {
-            VStack {
-                Image(systemName: "house")
-                Text("Buildings").font(.title2)
-            }
-        }
     }
 }
 
+
+
+
 struct CardView: View {
-    var content: String
-    @State var isFaceUp = true
+    let card: MemoryGame<String>.Card
     
     var body: some View {
         ZStack {
             let shape = RoundedRectangle(cornerRadius: 20)
-            if isFaceUp {
+            if card.isFaceUp {
                 shape.fill().foregroundColor(.white)
                 shape.strokeBorder(lineWidth: 3)
-                Text(content)
+                Text(card.content)
                     .font(.largeTitle)
             } else {
                 shape.fill()
             }
-        }
-        .onTapGesture {
-            isFaceUp = !isFaceUp
         }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
+        let game = EmojiMemoryGame()
         Group {
-            ContentView()
+            ContentView(viewModel: game)
                 .preferredColorScheme(.dark)
-            ContentView()
+            ContentView(viewModel: game)
                 .preferredColorScheme(.light)
         }
-        ContentView()
+        ContentView(viewModel: game)
             .preferredColorScheme(.dark)
     }
 }
+
+//    var vehicles: some View {
+//        Button {
+//            emojis = ["🚁", "🚀", "🚲", "🏎", "🚗", "🚕", "🛥", "🛴", "🚃", "🚂", "🛸", "⛵️" ].shuffled()
+//            emojiCount = Int.random(in: 4...12)
+//        } label: {
+//            VStack {
+//                Image(systemName: "car")
+//                Text("Vehicles").font(.title2)
+//            }
+//        }
+//    }
+//
+//    var gaming: some View {
+//        Button {
+//            emojis = ["🎮", "🎰", "👾", "🕹", "🎳", "🎲", "🎯", "🃏", "♣️", "♥️", "♦️", "♠️" ].shuffled()
+//            emojiCount = Int.random(in: 4...12)
+//        } label: {
+//            VStack {
+//                Image(systemName: "gamecontroller")
+//                Text("Gaming").font(.title2)
+//            }
+//        }
+//    }
+//
+//    var buildings: some View {
+//        Button {
+//            emojis = ["🏛", "🏠", "🏩", "🏦", "🛖", "⛪️", "🏪", "🏥", "🏰", "🏢", "🕌", "🏯" ].shuffled()
+//            emojiCount = Int.random(in: 4...12)
+//        } label: {
+//            VStack {
+//                Image(systemName: "house")
+//                Text("Buildings").font(.title2)
+//            }
+//        }
+//    }
+//}
